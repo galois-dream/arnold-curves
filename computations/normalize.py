@@ -59,6 +59,25 @@ def normalize(m, n, extra, max_steps=200):
     raise RuntimeError("did not terminate")
 
 
+
+def decide(m, n, extra, max_steps=12):
+    """Algorithm 2 of the note as stated there (added 2026-10-15 23:53 CEST, corrected from a guessed 23:58): first the invariant test, then
+    the term-removal loop with a step budget.  Returns ('not equivalent' | 'equivalent' | 'undecided', detail)."""
+    from codim_check import codimension
+    terms = sp.Poly(sp.expand(t**n + extra), t).terms()
+    curve = [m, {e[0]: c for e, c in terms}]
+    try:
+        lead = codimension([m, n])[:2]
+    except ValueError:
+        lead = None  # leading curve infinitely degenerate
+    if codimension(curve)[:2] != lead:
+        return "not equivalent", f"codimensions differ: {codimension(curve)[:2]} vs {lead}"
+    try:
+        log, rest, cond = normalize(m, n, extra, max_steps=max_steps)
+        return "equivalent", f"{len(log)} explicit steps"
+    except RuntimeError:
+        return "undecided", f"no answer within {max_steps} steps"
+
 CASES = [  # (m, n, extra, citation)
     (3, 4, t**5, "Arnold E_{6,1,0} boundary: (3,(4,5)) ~ (3,4)"),
     (3, 5, t**7, "Arnold E_{8,1,0}: (3,(5,7)) ~ (3,5); Castro-Howard 1107.4145 p.17 'messy calculation'"),

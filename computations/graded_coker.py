@@ -69,6 +69,61 @@ def toy_example():
           "; L(v0 - v1) =", list(LV[:, 0] - LV[:, 1]), "(a degree-2 pivot found from a degree-0 vector: d_2)")
 
 
+def eliminate(columns, col_deg, row_deg, pivots_out=None):
+    """[Ours] Algorithm 3 of the note (added 2026-10-15 22:01 CEST): ordered elimination.
+    columns: list of sparse vectors {row: coeff}; col_deg[k], row_deg[row]: degrees.  Columns are taken in
+    DECREASING degree, so a column is only ever corrected by columns of higher or equal degree; each reduced
+    column pivots on its lowest-degree row.  Returns ([(pivot row, r = deg(row) - deg(column))], unpivoted rows)."""
+    lowest = lambda v: min(v, key=lambda q: (row_deg[q], q))
+    pivots, gaps = ({} if pivots_out is None else pivots_out), []
+    for k in sorted(range(len(columns)), key=lambda k: -col_deg[k]):
+        v = {q: Fraction(c) for q, c in columns[k].items() if c}
+        while v and lowest(v) in pivots:
+            q = lowest(v)
+            w = pivots[q]
+            c = v[q] / w[q]
+            for q2, c2 in w.items():
+                v[q2] = v.get(q2, 0) - c * c2
+                if v[q2] == 0:
+                    del v[q2]
+        if v:
+            q = lowest(v)
+            pivots[q] = v
+            gaps.append((q, row_deg[q] - col_deg[k]))
+    return gaps, [q for q in row_deg if q not in pivots]
+
+
+def curve_moves(curve, lead):
+    """Columns for eliminate(): right moves t^(j+1)d/dt (degree j) and left moves x^alpha d/dx_i
+    (degree sum alpha_l d_l - d_i), as images mod t^K; rows (i, m) of degree m - d_i."""
+    fs = [series(c) for c in curve]
+    N = len(fs)
+    row_deg = {(i, m): m - lead[i] for i in range(N) for m in range(1, K)}
+    cols, degs = [], []
+    for j in range(K - 1):  # right moves
+        cols.append({(i, m + j): m * fs[i][m] for i in range(N) for m in range(1, K - j) if fs[i][m]})
+        degs.append(j)
+    def monos(start, used):  # exponent vectors alpha with sum alpha_l lead_l < K
+        if start == N:
+            yield ()
+            return
+        for e in range((K - 1 - used) // lead[start] + 1):
+            for rest in monos(start + 1, used + e * lead[start]):
+                yield (e,) + rest
+    for alpha in monos(0, 0):
+        if sum(alpha) == 0:
+            continue
+        g = [Fraction(0)] * K
+        g[0] = Fraction(1)
+        for l, e in enumerate(alpha):
+            for _ in range(e):
+                g = mul(g, fs[l])
+        for i in range(N):
+            cols.append({(i, m): c for m, c in enumerate(g) if c})
+            degs.append(sum(e * d for e, d in zip(alpha, lead)) - lead[i])
+    return cols, degs, row_deg
+
+
 if __name__ == "__main__":
     for name, curve, lead in [("(t^4, t^6+t^7)", [4, (6, 7)], [4, 6]),
                               ("(t^4, t^6+t^9)", [4, (6, 9)], [4, 6]),
@@ -86,3 +141,18 @@ if __name__ == "__main__":
     for label, right, left in cases:
         print(f"  {label}:\n     on f0: {act(right, left, f0)}   on f: {act(right, left, f)}")
     toy_example()
+    print("\nAlgorithm 3 (ordered elimination) on the same curves: survivors by degree, and pivots by page")
+    for name, curve, lead in [("(t^4, t^6+t^7)", [4, (6, 7)], [4, 6]), ("(t^4, t^6+t^9)", [4, (6, 9)], [4, 6]),
+                              ("(t^4, t^6+t^7, t^9)", [4, (6, 7), 9], [4, 6, 9])]:
+        gaps, free = eliminate(*curve_moves(curve, lead))
+        surv = {}
+        for (i, m) in free:
+            if m < K - 8:
+                surv[m - lead[i]] = surv.get(m - lead[i], 0) + 1
+        rs = [r for (i, m), r in gaps if m < K - 8]  # pivots on rows below the truncation margin
+        pages = {r: rs.count(r) for r in sorted(set(rs))}
+        same = surv == graded_coker(curve, lead)
+        print(f"  {name:22} survivors {dict(sorted(surv.items()))}  (= graded cokernel above: {same})  "
+              f"pivots d_r by r: {pages}")
+    toy_gaps, toy_free = eliminate([{"w1": 1}, {"w1": 1, "w2": 1}], [0, 1], {"w0": 0, "w1": 1, "w2": 2})
+    print("  toy example: pivots (row, r) =", toy_gaps, "; survivors", toy_free)

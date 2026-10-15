@@ -94,6 +94,31 @@ def a_b(curve):
     return a, len(big.rows) - base, max(gaps) + 1
 
 
+
+def codimension(curve, K0=16):
+    """Algorithm 1 of the note, with the truncation chosen automatically (added 2026-10-15 23:51 CEST).
+    Refuses curves whose exponents share a factor g > 1: those are infinitely degenerate (t -> t^g covers
+    the image twice) and have no conductor [Gibson-Hobbs Lemma 3.1, stated in C^3].  Otherwise doubles K
+    until a_b's check passes; that check certifies every integer >= K - lead - 2 is in the semigroup
+    (a run longer than the multiplicity), so the answer is exact.  Returns (a, b, K used)."""
+    global K
+    from math import gcd
+    exps = [e for c in curve for e in ([c] if isinstance(c, int) else (list(c) if isinstance(c, dict) else c))]
+    g = 0
+    for e in exps:
+        g = gcd(g, e)
+    if g != 1:
+        raise ValueError(f"exponents share the factor {g}: infinitely degenerate, no conductor")
+    saved, K = K, max(K0, 2 * max(exps))
+    try:
+        while True:
+            try:
+                return a_b(curve)[:2] + (K,)
+            except AssertionError:
+                K *= 2
+    finally:
+        K = saved
+
 # [Arnold] symbol -> (a, b) read off his superscript aN - b.  Pages: Thm 3 p.30; E-hierarchy p.31;
 # Thm 5 p.31 (series at their first index).  Binomial (p, q) means t^p + t^q.
 CASES = [
