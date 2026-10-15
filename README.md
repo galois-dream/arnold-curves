@@ -14,6 +14,7 @@ Written 2026-10-15 15:25 CEST.
 | `computations/cm_3_10_orbits.py` | the nine curve classes with symbol [3,10] and their codimensions against Arnold's E_18 formula |
 | `computations/moduli_test.py` | codimension of a symbol class vs a generic orbit (where moduli appear); the count k(k+3)/2; Arnold's Theorem 4 index check |
 | `computations/graded_coker.py` | the graded cokernel and the first differentials (equation, Euler and Hamiltonian fields) for (t^4, t^6 + t^7) |
+| `computations/gibson_hobbs_check.py` | Gibson–Hobbs (1993) Tables 1–2 against aN − b at N = 3 (92 normal forms), and the entries their invariants cannot separate (the Frobenius pairs) |
 | `computations/codewords.py` | code-word counts for the Semple tower strata, the RVT ↔ code-word bijection, closed-form generating functions |
 
 ## Running
