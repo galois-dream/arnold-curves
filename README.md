@@ -27,3 +27,7 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 Python 3.10 or later. Each script's docstring states what it checks and labels its sources:
 [Arnold] for Arnold's paper (page references are to the Russian edition, Trudy MIAN 226, 1999),
 [Lit] for other literature, and [Ours] for new reconstructions.
+
+## License
+
+MIT; see `LICENSE`.
