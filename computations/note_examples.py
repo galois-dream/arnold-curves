@@ -5,7 +5,7 @@ Written 2026-10-15 14:51 CEST.  [Ours]
   (2) (t^3, t^4 + t^5) ~ (t^3, t^4) by explicit right/left changes (cf. [Arnold] p.30 Remark, E_{6,1,0} = (3,4)).
   (3) For f = (t^3, t^4): which t^{j+1} f' survive modulo A_f^2 (the b of Arnold's formula a N - b).
   (4) Sylvester duality for u=3, v=5 as quoted by [Arnold] p.33.
-  (5) The rolling wheel of Figure 1, and (a, b) for (2,3), (3,4,5), (3,4). Added 2026-10-15 21:21 CEST (corrected from a guessed 21:25).
+  (5) The rolling wheel of Figure 1, and (a, b) for (2,3), (3,4,5), (2,5), (3,4) [(2,5) added 2026-10-16 00:25 CEST]. Added 2026-10-15 21:21 CEST (corrected from a guessed 21:25).
 Run: .venv/bin/python computations/note_examples.py
 """
 import sympy as sp
@@ -61,5 +61,5 @@ vel = (1 - r * sp.cos(t), r * sp.sin(t))
 print("(5) wheel: velocity (1 - r cos t, r sin t) = 0 has solutions (r, t) =",
       sp.solve(list(vel), [r, t], dict=True), "(t mod 2pi) -> cusps only at r = 1")
 print("    at r = 1: height", sp.series(1 - sp.cos(t), t, 0, 6).removeO(), "; position", sp.series(t - sp.sin(t), t, 0, 6).removeO())
-print("    (2,3), (3,4,5), (3,4): (a, b) =", a_b([2, 3])[:2], a_b([3, 4, 5])[:2], a_b([3, 4])[:2],
-      "-> codim N, 2N, 3N-2")
+print("    (2,3), (3,4,5), (2,5), (3,4): (a, b) =", a_b([2, 3])[:2], a_b([3, 4, 5])[:2], a_b([2, 5])[:2], a_b([3, 4])[:2],
+      "-> codim N, 2N, 2N-1, 3N-2")
