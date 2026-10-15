@@ -58,6 +58,17 @@ def act(right, left, f):
             sp.expand(right * sp.diff(fy, t) - left[1].subs({x: fx, y: fy}, simultaneous=True))]
 
 
+def toy_example():
+    """[Ours] Appendix A toy: V = <v0 (deg 0), v1 (deg 1)>, W = <w0, w1, w2> (degrees 0, 1, 2);
+    L v0 = w1 (raises degree by 1), L v1 = w1 + w2.  Graded cokernel pieces C_p = dim(F_p+LV) - dim(F_{p+1}+LV)."""
+    LV = sp.Matrix([[0, 0], [1, 1], [0, 1]])          # columns L v0, L v1 in basis w0, w1, w2
+    F = {p: sp.eye(3)[:, p:] for p in range(4)}         # F_p = span of basis vectors of degree >= p
+    dim = lambda p: (F[p].row_join(LV)).rank() if p < 3 else LV.rank()
+    C = [dim(p) - dim(p + 1) for p in range(3)]
+    print("\nToy filtered map (Appendix A): rank L =", LV.rank(), "; graded cokernel C_0, C_1, C_2 =", C,
+          "; L(v0 - v1) =", list(LV[:, 0] - LV[:, 1]), "(a degree-2 pivot found from a degree-0 vector: d_2)")
+
+
 if __name__ == "__main__":
     for name, curve, lead in [("(t^4, t^6+t^7)", [4, (6, 7)], [4, 6]),
                               ("(t^4, t^6+t^9)", [4, (6, 9)], [4, 6]),
@@ -74,3 +85,4 @@ if __name__ == "__main__":
     ]
     for label, right, left in cases:
         print(f"  {label}:\n     on f0: {act(right, left, f0)}   on f: {act(right, left, f)}")
+    toy_example()
