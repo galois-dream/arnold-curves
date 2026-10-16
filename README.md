@@ -16,6 +16,7 @@ Written 2026-10-15 15:25 CEST.
 | `computations/graded_coker.py` | the graded cokernel and the first differentials (equation, Euler and Hamiltonian fields) for (t^4, t^6 + t^7); Algorithm 3 (ordered elimination), checked against the graded cokernel |
 | `computations/timing.py` | running times of Algorithms 1–3 on the note's examples; `timing.py sweep` measures time and peak memory against input size (about 30 s) |
 | `computations/gibson_hobbs_check.py` | Gibson–Hobbs (1993) Tables 1–2 against aN − b at N = 3 (92 normal forms), and the entries their invariants cannot separate (the Frobenius pairs) |
+| `computations/plane_branches.py` | plane curves: the two-move removal of the Frobenius term for all coprime m < n (Lemma 2); Zariski's theorem by elimination and the Euler move on 158 curves (Proposition 3); Arnold's b against Hefez–Hernandes's values of differentials (b = a − 1 + #(Λ∖Γ)) and the codimension at N = 3 against the Tjurina number (about 15 s) |
 | `computations/codewords.py` | code-word counts for the Semple tower strata, the RVT ↔ code-word bijection, closed-form generating functions |
 
 ## Running
